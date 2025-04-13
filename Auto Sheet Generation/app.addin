@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<RevitAddIns>
+	<AddIn Type="Command">
+		<Name>Auto Sheet Generation</Name>
+		<Assembly>Auto Sheet Generation.dll</Assembly>
+		<AddInId>
+			F41BE72F-ABB0-42A2-9B26-15BFB21CC1AF
+		</AddInId>
+		<FullClassName>Auto_Sheet_Generation.AutoGenerator</FullClassName>
+		<Text>Auto Sheet Generation</Text>
+		<Description>Auto Sheet Generation</Description>
+		<VendorId>Ahmed ELGaiar</VendorId>
+		<VendorDescription>Better Call Gaiar</VendorDescription>
+		<VisibilityMode>NotVisibleWhenNoActiveDocument</VisibilityMode>
+	</AddIn>
+	<AddIn Type="Command">
+		<Name>Columns and Axis</Name>
+		<Assembly>Auto Sheet Generation.dll</Assembly>
+		<AddInId>
+			 A4E46AD2-69DB-4EEE-84A9-E08E616A326B
+		</AddInId>
+		<FullClassName>Auto_Sheet_Generation.Col_axis</FullClassName>
+		<Text>Columns and Axis Sheet</Text>
+		<Description>Auto Sheet Generation For Columns and Axis at Foundation</Description>
+		<VendorId>Ahmed ELGaiar</VendorId>
+		<VendorDescription>Better Call Gaiar</VendorDescription>
+		<VisibilityMode>NotVisibleWhenNoActiveDocument</VisibilityMode>
+	</AddIn>	
+	<AddIn Type="Command">
+		<Name>Columns Dim</Name>
+		<Assembly>Auto Sheet Generation.dll</Assembly>
+		<AddInId>
+			E338049B-C4FB-46A2-81C3-2FC982853120
+		</AddInId>
+		<FullClassName>Auto_Sheet_Generation.Column_Dim</FullClassName>
+		<Text>Columns Dimention</Text>
+		<Description>Auto Dimention For Columns</Description>
+		<VendorId>Ahmed ELGaiar</VendorId>
+		<VendorDescription>Better Call Gaiar</VendorDescription>
+		<VisibilityMode>NotVisibleWhenNoActiveDocument</VisibilityMode>
+	</AddIn>
+</RevitAddIns>
+
