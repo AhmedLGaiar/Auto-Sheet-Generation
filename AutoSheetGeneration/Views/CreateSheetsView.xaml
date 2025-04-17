@@ -1,0 +1,59 @@
+﻿<Window x:Class="AutoSheetGeneration.Views.CreateSheetsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AutoSheetGeneration.Views"
+        xmlns:viewModels="clr-namespace:AutoSheetGeneration.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewModels:CreateSheetsViewModel, IsDesignTimeCreatable=False}"
+        WindowStartupLocation="CenterScreen"
+        Title="Create Sheets" Height="350" Width="300">
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="150" />
+            <Setter Property="Margin" Value="0 10 0 10" />
+        </Style>
+    </Window.Resources>
+
+    <Window.DataContext>
+        <viewModels:CreateSheetsViewModel />
+    </Window.DataContext>
+
+    <Window.InputBindings>
+        <KeyBinding Key="A"
+                    Modifiers="Control"
+                    Command="{Binding SelectAllCommand}" />
+
+        <KeyBinding Key="Enter"
+                    Command="{Binding CreateSheetCommand}" />
+    </Window.InputBindings>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ListView ItemsSource="{Binding ViewPlans}"
+                  Height="180" BorderBrush="Gray" BorderThickness="1">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="0 2">
+                        <!-- CheckBox to allow multiple selection -->
+                        <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center"
+                                  Margin="0 0 2 0" />
+                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Button Grid.Row="2" Content="Create Sheets" Command="{Binding CreateSheetCommand}" />
+    </Grid>
+</Window>

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<RevitAddIns>
+	<AddIn Type="Application">
+		<Name>Auto Sheet Generation</Name>
+		<Assembly>AutoSheetGeneration.dll</Assembly>
+		<AddInId>
+			BDB5B0B0-3647-49D3-89FC-5D6722137B02
+		</AddInId>
+		<FullClassName>AutoSheetGeneration.Commands.ExternalApplication</FullClassName>
+		<Text>Auto Sheet Generation</Text>
+		<Description>Auto Sheet Generation</Description>
+		<VendorId>Ahmed ELGaiar</VendorId>
+		<VendorDescription>Better Call Gaiar</VendorDescription>
+		<VisibilityMode>NotVisibleWhenNoActiveDocument</VisibilityMode>
+	</AddIn>
+</RevitAddIns>
