@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewModels:CreateSheetsViewModel, IsDesignTimeCreatable=False}"
         WindowStartupLocation="CenterScreen"
-        Title="Create Sheets" Height="350" Width="300">
+        Title="Create Sheets" Height="350" Width="300" >
 
     <Window.Resources>
         <Style TargetType="Button">
@@ -54,6 +54,8 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Button Grid.Row="2" Content="Create Sheets" Command="{Binding CreateSheetCommand}" />
+
+        <Button Grid.Row="1" Content="Create Column Plans" Command="{Binding CreateColumnsandaxisplan}" />
+        <Button Grid.Row="3" Content="Create Sheets" Command="{Binding CreateSheetCommand}" />
     </Grid>
 </Window>

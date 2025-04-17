@@ -19,12 +19,20 @@ namespace AutoSheetGeneration.ViewModels.Option
         public bool IsSelected
         {
             get => _isSelected;
-            set => SetProperty(ref _isSelected, value);
+            set
+            {
+                SetProperty(ref _isSelected, value);
+                SelectionChanged?.Invoke(); // Notify ViewModel of change
+            }
         }
+
+        // This gets set by the ViewModel when created
+        public Action SelectionChanged { get; set; }
 
         public ViewPlanOption(ViewPlan viewPlan)
         {
             ViewPlan = viewPlan;
+
         }
     }
 }

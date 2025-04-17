@@ -1,6 +1,9 @@
 ﻿using Autodesk.Revit.UI;
 using System;
 using System.Reflection;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace AutoSheetGeneration.Commands
 {
@@ -33,8 +36,27 @@ namespace AutoSheetGeneration.Commands
                 typeof(AutoGenerator).FullName
             );
 
-            PushButton tagButton = panel.AddItem(buttonData) as PushButton;
-            tagButton.ToolTip = "Automatically creates Sheets and ViewPorts For Structural Plans";
+            PushButton createButton = panel.AddItem(buttonData) as PushButton;
+            createButton.ToolTip = "Automatically creates Sheets and ViewPorts For Structural Plans";
+
+            // Load image from embedded resource
+            var iconStream = Assembly.GetExecutingAssembly()
+                .GetManifestResourceStream("AutoSheetGeneration.Resources.SheetIcon.png");
+
+            if (iconStream != null)
+            {
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.StreamSource = iconStream;
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+
+                createButton.LargeImage = bitmap;
+            }
+            else
+            {
+                TaskDialog.Show("Error", "Icon resource not found!");
+            }
 
             return Result.Succeeded;
         }

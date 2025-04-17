@@ -13,6 +13,8 @@ using System.Collections.ObjectModel;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.Creation;
 using System.Xml.Linq;
+using System.ComponentModel;
+using System.Numerics;
 
 namespace AutoSheetGeneration.ViewModels
 {
@@ -20,13 +22,21 @@ namespace AutoSheetGeneration.ViewModels
     {
         public ObservableCollection<ViewPlanOption> ViewPlans { get; } = new ObservableCollection<ViewPlanOption>();
 
-        public IRelayCommand CreateSheetCommand { get; }
-        public IRelayCommand SelectAllCommand { get; }
+        private RelayCommand _CreateSheetCommand;
+        public ICommand CreateSheetCommand => _CreateSheetCommand;
 
+
+        private RelayCommand _SelectAllCommand;
+        public ICommand SelectAllCommand => _SelectAllCommand;
+
+
+        private RelayCommand _CreateColumnsandaxisplan;
+        public ICommand CreateColumnsandaxisplan => _CreateColumnsandaxisplan;
         public CreateSheetsViewModel()
         {
-            CreateSheetCommand = new RelayCommand(CreateSheet);
-            SelectAllCommand = new RelayCommand(() => SelectAll(true));
+            _CreateSheetCommand = new RelayCommand(CreateSheet, CanExecuteSelectedPlans);
+            _SelectAllCommand = new RelayCommand(() => SelectAll(true));
+            _CreateColumnsandaxisplan = new RelayCommand(CreateColnaxisPlan, CanExecuteSelectedPlans);
             // Get structural ViewPlans
             List<ViewPlan> structuralPlans = new FilteredElementCollector(AutoGenerator.document)
                 .OfClass(typeof(ViewPlan))
@@ -35,15 +45,27 @@ namespace AutoSheetGeneration.ViewModels
             LoadViewPlans(structuralPlans);
         }
 
+        private bool CanExecuteSelectedPlans()
+        {
+            return ViewPlans.Any(v => v.IsSelected);
+        }
+
+
         public void LoadViewPlans(IEnumerable<ViewPlan> plans)
         {
             ViewPlans.Clear(); // optional: reset if reloading
             foreach (var plan in plans)
             {
-                ViewPlans.Add(new ViewPlanOption(plan));
+                var option = new ViewPlanOption(plan);
+                option.SelectionChanged = UpdateCommandStates; // ← callback
+                ViewPlans.Add(option);
             }
         }
-
+        private void UpdateCommandStates()
+        {
+            _CreateSheetCommand.NotifyCanExecuteChanged();
+            _CreateColumnsandaxisplan.NotifyCanExecuteChanged();
+        }
         public void SelectAll(bool select)
         {
             foreach (var vp in ViewPlans)
@@ -52,30 +74,31 @@ namespace AutoSheetGeneration.ViewModels
 
         private void CreateSheet()
         {
+            // Get title block
+            FamilySymbol fs = new FilteredElementCollector(AutoGenerator.document)
+                .OfClass(typeof(FamilySymbol))
+                .OfCategory(BuiltInCategory.OST_TitleBlocks)
+                .Cast<FamilySymbol>()
+                .FirstOrDefault();
+
+            if (fs == null)
+            {
+                TaskDialog.Show("Error", "No title block found.");
+                return;
+            }
+
+            // Only create sheets for selected ViewPlanOptions
+            var selectedViews = ViewPlans
+                .Where(v => v.IsSelected)
+                .Select(v => v.ViewPlan)
+                .ToList();
+
+            int sheetCounter = 1;
+
             using (Transaction transaction = new Transaction(AutoGenerator.document, "Sheet Generated"))
             {
                 transaction.Start();
 
-                // Get title block
-                FamilySymbol fs = new FilteredElementCollector(AutoGenerator.document)
-                    .OfClass(typeof(FamilySymbol))
-                    .OfCategory(BuiltInCategory.OST_TitleBlocks)
-                    .Cast<FamilySymbol>()
-                    .FirstOrDefault();
-
-                if (fs == null)
-                {
-                    TaskDialog.Show("Error", "No title block found.");
-                    return;
-                }
-
-                // Only create sheets for selected ViewPlanOptions
-                var selectedViews = ViewPlans
-                    .Where(v => v.IsSelected)
-                    .Select(v => v.ViewPlan)
-                    .ToList();
-
-                int sheetCounter = 1;
                 foreach (var structuralPlan in selectedViews)
                 {
                     ViewSheet newSheet = ViewSheet.Create(AutoGenerator.document, fs.Id);
@@ -95,6 +118,95 @@ namespace AutoSheetGeneration.ViewModels
                 }
 
                 transaction.Commit();
+            }
+        }
+
+        private void CreateColnaxisPlan()
+        {
+
+            var selectedViews = ViewPlans
+                .Where(v => v.IsSelected)
+                .Select(v => v.ViewPlan)
+                .ToList();
+
+            if (!selectedViews.Any())
+            {
+                TaskDialog.Show("Info", "No plans were selected.");
+                return;
+            }
+
+            ViewFamilyType viewFamilyType = new FilteredElementCollector(AutoGenerator.document)
+                .OfClass(typeof(ViewFamilyType)).Cast<ViewFamilyType>()
+                .FirstOrDefault(x => ViewFamily.StructuralPlan == x.ViewFamily);
+
+            if (viewFamilyType == null)
+            {
+                TaskDialog.Show("Error", "Structural ViewFamilyType not found.");
+                return;
+            }
+
+            var allLevels = new FilteredElementCollector(AutoGenerator.document)
+                .OfClass(typeof(Level))
+                .Cast<Level>()
+                .ToDictionary(l => l.Name, l => l);
+
+            using (Transaction transaction = new Transaction(AutoGenerator.document, "Plan Generated"))
+            {
+                transaction.Start(); 
+
+                foreach (var planOption in selectedViews)
+                {
+                    if (!allLevels.TryGetValue(planOption.Name, out var level))
+                    {
+                        TaskDialog.Show("Warning", $"Level not found for plan name: {planOption.Name}");
+                        continue;
+                    }
+
+                    ViewPlan viewPlan = ViewPlan.Create(AutoGenerator.document, viewFamilyType.Id, level.Id);
+
+                    viewPlan.Name = $"Colnaxis - {level.Name}";
+
+                    var option = new ViewPlanOption(viewPlan);
+                    option.SelectionChanged = UpdateCommandStates; // ← callback
+                    ViewPlans.Add(option);
+
+                    HideElements(viewPlan);
+
+                }
+
+                transaction.Commit();
+            }
+        }
+
+        private void HideElements(ViewPlan viewPlan)
+        {
+
+            List<BuiltInCategory> structuralCategories = new List<BuiltInCategory>
+            {
+                BuiltInCategory.OST_StructuralFraming,
+                BuiltInCategory.OST_Floors,
+                BuiltInCategory.OST_StructuralFoundation,
+                BuiltInCategory.OST_FloorsStructure,
+                BuiltInCategory.OST_Walls,
+                BuiltInCategory.OST_StructuralFramingSystem,
+                BuiltInCategory.OST_Rebar,
+                BuiltInCategory.OST_HiddenStructuralFoundationLines,
+                BuiltInCategory.OST_AreaRein,
+                BuiltInCategory.OST_Elev,
+                BuiltInCategory.OST_Lines,
+                BuiltInCategory.OST_CLines,
+            };
+
+            foreach (BuiltInCategory category in structuralCategories)
+            {
+                ElementId categoryId = new ElementId((int)category);
+
+                // Check if the category can be hidden in the view
+                if (viewPlan.CanCategoryBeHidden(categoryId))
+                {
+                    // Set the visibility of the category
+                    viewPlan.SetCategoryHidden(categoryId, true); // true = hide, false = unhide
+                }
             }
         }
     }
