@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewModels:CreateSheetsViewModel, IsDesignTimeCreatable=False}"
         WindowStartupLocation="CenterScreen"
-        Title="Create Sheets" Height="350" Width="300" >
+        Title="Create Sheets" Height="380" Width="300"  ResizeMode="NoResize" WindowStyle="SingleBorderWindow">
 
     <Window.Resources>
         <Style TargetType="Button">
@@ -16,7 +16,7 @@
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Height" Value="30" />
             <Setter Property="Width" Value="150" />
-            <Setter Property="Margin" Value="0 10 0 10" />
+            <Setter Property="Margin" Value="0 10 0 0" />
         </Style>
     </Window.Resources>
 
@@ -41,7 +41,12 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <ListView ItemsSource="{Binding ViewPlans}"
+        <ComboBox Margin="0 0 0 10"  Width="200" HorizontalAlignment="Right"
+                  ItemsSource="{Binding TitleBlock}"
+                  SelectedItem="{Binding TitleBlockOption, Mode=TwoWay}"
+                  DisplayMemberPath="Name"/>
+
+        <ListView Grid.Row="1" ItemsSource="{Binding ViewPlans}"
                   Height="180" BorderBrush="Gray" BorderThickness="1">
             <ListView.ItemTemplate>
                 <DataTemplate>
@@ -55,7 +60,7 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <Button Grid.Row="1" Content="Create Column Plans" Command="{Binding CreateColumnsandaxisplan}" />
+        <Button Grid.Row="2" Content="Create Column Plans" Command="{Binding CreateColumnsandaxisplan}" />
         <Button Grid.Row="3" Content="Create Sheets" Command="{Binding CreateSheetCommand}" />
     </Grid>
 </Window>

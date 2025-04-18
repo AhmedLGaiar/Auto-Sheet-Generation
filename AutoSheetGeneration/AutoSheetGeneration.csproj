@@ -104,6 +104,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="ViewModels\CreateSheetsViewModel.cs" />
+    <Compile Include="ViewModels\Option\TitleBlockOption.cs" />
     <Compile Include="ViewModels\Option\ViewPlanOption.cs" />
     <Compile Include="Views\CreateSheetsView.xaml.cs">
       <DependentUpon>CreateSheetsView.xaml</DependentUpon>

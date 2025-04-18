@@ -20,7 +20,14 @@ namespace AutoSheetGeneration.ViewModels
 {
     public class CreateSheetsViewModel : ObservableObject
     {
+
+        #region Lists
         public ObservableCollection<ViewPlanOption> ViewPlans { get; } = new ObservableCollection<ViewPlanOption>();
+        public ObservableCollection<TitleBlockOption> TitleBlock { get; } = new ObservableCollection<TitleBlockOption>();
+
+        #endregion
+
+        #region Commands
 
         private RelayCommand _CreateSheetCommand;
         public ICommand CreateSheetCommand => _CreateSheetCommand;
@@ -32,6 +39,27 @@ namespace AutoSheetGeneration.ViewModels
 
         private RelayCommand _CreateColumnsandaxisplan;
         public ICommand CreateColumnsandaxisplan => _CreateColumnsandaxisplan;
+
+        #endregion
+
+        #region Property
+
+        private TitleBlockOption _titleBlockOption;
+        public TitleBlockOption TitleBlockOption
+        {
+            get => _titleBlockOption;
+            set
+            {
+                if (SetProperty(ref _titleBlockOption, value))
+                {
+                    UpdateCommandStates();
+                }
+            }
+        }
+
+        #endregion
+
+        #region Ctor
         public CreateSheetsViewModel()
         {
             _CreateSheetCommand = new RelayCommand(CreateSheet, CanExecuteSelectedPlans);
@@ -41,13 +69,25 @@ namespace AutoSheetGeneration.ViewModels
             List<ViewPlan> structuralPlans = new FilteredElementCollector(AutoGenerator.document)
                 .OfClass(typeof(ViewPlan))
                 .Cast<ViewPlan>()
-                .Where(v => !v.IsTemplate).OrderBy(v=>v.Name).ToList();
+                .Where(v => !v.IsTemplate).OrderBy(v => v.Name).ToList();
             LoadViewPlans(structuralPlans);
+
+            // Get Title Blocks
+            List<FamilySymbol> fs = new FilteredElementCollector(AutoGenerator.document)
+                .OfClass(typeof(FamilySymbol))
+                .OfCategory(BuiltInCategory.OST_TitleBlocks)
+                .Cast<FamilySymbol>().ToList();
+
+            LoadTitleBlocks(fs);
+
         }
+
+        #endregion
+
 
         private bool CanExecuteSelectedPlans()
         {
-            return ViewPlans.Any(v => v.IsSelected);
+            return ViewPlans.Any(v => v.IsSelected) && !(_titleBlockOption==null);
         }
 
 
@@ -61,6 +101,20 @@ namespace AutoSheetGeneration.ViewModels
                 ViewPlans.Add(option);
             }
         }
+
+        public void LoadTitleBlocks(IEnumerable<FamilySymbol> blocks)
+        {
+            TitleBlock.Clear(); // optional: reset if reloading
+            foreach (var block in blocks)
+            {
+                var option = new TitleBlockOption(block);
+                TitleBlock.Add(option);
+            }
+
+            if (TitleBlock.Count > 0)
+                TitleBlockOption = TitleBlock[0];
+        }
+
         private void UpdateCommandStates()
         {
             _CreateSheetCommand.NotifyCanExecuteChanged();
@@ -79,7 +133,7 @@ namespace AutoSheetGeneration.ViewModels
                 .OfClass(typeof(FamilySymbol))
                 .OfCategory(BuiltInCategory.OST_TitleBlocks)
                 .Cast<FamilySymbol>()
-                .FirstOrDefault();
+                .FirstOrDefault(e=>e.Name== _titleBlockOption.Name);
 
             if (fs == null)
             {
