@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewModels:CreateSheetsViewModel, IsDesignTimeCreatable=False}"
         WindowStartupLocation="CenterScreen"
-        Title="Create Sheets" Height="380" Width="300"  ResizeMode="NoResize" WindowStyle="SingleBorderWindow">
+        Title="Create Sheets" Height="400" Width="300"  ResizeMode="NoResize" WindowStyle="SingleBorderWindow">
 
     <Window.Resources>
         <Style TargetType="Button">
@@ -41,10 +41,14 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <ComboBox Margin="0 0 0 10"  Width="200" HorizontalAlignment="Right"
-                  ItemsSource="{Binding TitleBlock}"
-                  SelectedItem="{Binding TitleBlockOption, Mode=TwoWay}"
-                  DisplayMemberPath="Name"/>
+        <StackPanel Margin="0 0 0 10">
+            <Label Content="Title Block" FontSize="16"/>
+            <ComboBox Width="200" HorizontalAlignment="Left"
+                      ItemsSource="{Binding TitleBlock}"
+                      SelectedItem="{Binding TitleBlockOption, Mode=TwoWay}"
+                      DisplayMemberPath="Name"/>
+        </StackPanel>
+
 
         <ListView Grid.Row="1" ItemsSource="{Binding ViewPlans}"
                   Height="180" BorderBrush="Gray" BorderThickness="1">

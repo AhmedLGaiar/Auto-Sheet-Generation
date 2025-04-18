@@ -84,12 +84,10 @@ namespace AutoSheetGeneration.ViewModels
 
         #endregion
 
-
         private bool CanExecuteSelectedPlans()
         {
             return ViewPlans.Any(v => v.IsSelected) && !(_titleBlockOption==null);
         }
-
 
         public void LoadViewPlans(IEnumerable<ViewPlan> plans)
         {
